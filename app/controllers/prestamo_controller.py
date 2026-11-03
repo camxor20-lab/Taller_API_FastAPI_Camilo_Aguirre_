@@ -6,6 +6,7 @@ from ..core.exceptions import Conflicto, NoEncontrado, ReglaNegocio
 from ..models.libro import Libro
 from ..models.prestamo import Prestamo
 from ..models.socio import Socio
+from ..models.usuario import RolUsuario, Usuario
 from ..schemas.prestamo import DevolucionCrear, EstadoPrestamoEnum, PrestamoCrear
 
 
@@ -30,7 +31,8 @@ def listar_prestamos(
     limit: int = 10,
     estado: EstadoPrestamoEnum | None = None,
     socio_id: int | None = None,
-    libro_id: int | None = None
+    libro_id: int | None = None,
+    usuario: Usuario | None = None
 ) -> list[Prestamo]:
     """Lista préstamos paginados con filtros por estado, socio y libro."""
     hoy = date.today()
@@ -39,7 +41,10 @@ def listar_prestamos(
         selectinload(Prestamo.socio)
     )
 
-    if socio_id is not None:
+    # Regla Z3: en GET /prestamos un socio solo recibe sus préstamos aunque envíe ?socio_id= de otro
+    if usuario and usuario.rol == RolUsuario.socio:
+        consulta = consulta.where(Prestamo.socio_id == usuario.socio_id)
+    elif socio_id is not None:
         consulta = consulta.where(Prestamo.socio_id == socio_id)
 
     if libro_id is not None:
@@ -65,7 +70,11 @@ def listar_prestamos(
     return prestamos
 
 
-def obtener_prestamo(db: Session, prestamo_id: int) -> Prestamo:
+def obtener_prestamo(
+    db: Session,
+    prestamo_id: int,
+    usuario: Usuario | None = None
+) -> Prestamo:
     """Consulta un préstamo por ID con libro y socio anidados."""
     consulta = select(Prestamo).options(
         selectinload(Prestamo.libro),
@@ -76,16 +85,25 @@ def obtener_prestamo(db: Session, prestamo_id: int) -> Prestamo:
     if not prestamo:
         raise NoEncontrado("Préstamo no encontrado")
 
+    # Regla Z2: Un socio que consulta un préstamo que no es suyo recibe 404, no 403
+    if usuario and usuario.rol == RolUsuario.socio and prestamo.socio_id != usuario.socio_id:
+        raise NoEncontrado("Préstamo no encontrado")
+
     return _cargar_relaciones_y_estado(prestamo)
 
 
-def crear_prestamo(db: Session, datos: PrestamoCrear) -> Prestamo:
+def crear_prestamo(
+    db: Session,
+    datos: PrestamoCrear,
+    registrado_por_id: int | None = None
+) -> Prestamo:
     """
-    Registra un préstamo validando las reglas R1 a R8 en estricto orden:
+    Registra un préstamo validando las reglas R1 a R8 y R11 en estricto orden:
     R1: El socio existe (404)
     R2: El libro existe (404)
     R3: El socio está activo (422)
     R4: El socio no tiene préstamos vencidos (422)
+    R11: El socio no tiene multas pendientes de pago (422)
     R5: El socio tiene menos de 3 préstamos sin devolver (422)
     R6: El socio no tiene ya ese mismo libro sin devolver (409)
     R7: El libro tiene ejemplares disponibles (422)
@@ -117,6 +135,17 @@ def crear_prestamo(db: Session, datos: PrestamoCrear) -> Prestamo:
     ) or 0
     if vencidos > 0:
         raise ReglaNegocio("El socio tiene préstamos vencidos")
+
+    # R11: El socio no tiene multas pendientes de pago
+    multas_pendientes = db.scalar(
+        select(func.count(Prestamo.id)).where(
+            Prestamo.socio_id == datos.socio_id,
+            Prestamo.multa > Decimal("0.00"),
+            Prestamo.multa_pagada.is_(False)
+        )
+    ) or 0
+    if multas_pendientes > 0:
+        raise ReglaNegocio("El socio tiene multas pendientes")
 
     # R5: El socio tiene menos de 3 préstamos sin devolver
     sin_devolver = db.scalar(
@@ -159,8 +188,12 @@ def crear_prestamo(db: Session, datos: PrestamoCrear) -> Prestamo:
         fecha_prestamo=datos.fecha_prestamo,
         fecha_limite=fecha_limite,
         fecha_devolucion=None,
-        multa=Decimal("0.00")
+        multa=Decimal("0.00"),
+        multa_pagada=True
     )
+    if hasattr(Prestamo, "registrado_por_id") and registrado_por_id is not None:
+        nuevo_prestamo.registrado_por_id = registrado_por_id
+
     db.add(nuevo_prestamo)
     db.commit()
     db.refresh(nuevo_prestamo)
@@ -194,11 +227,32 @@ def registrar_devolucion(
     if fecha_devolucion > prestamo.fecha_limite:
         dias_retraso = (fecha_devolucion - prestamo.fecha_limite).days
         prestamo.multa = Decimal(str(dias_retraso)) * Decimal("0.50")
+        prestamo.multa_pagada = False
     else:
         prestamo.multa = Decimal("0.00")
+        prestamo.multa_pagada = True
 
     prestamo.fecha_devolucion = fecha_devolucion
     db.commit()
     db.refresh(prestamo)
 
+    return obtener_prestamo(db, prestamo.id)
+
+
+def pagar_multa(db: Session, prestamo_id: int) -> Prestamo:
+    """
+    Registra el pago de la multa de un préstamo.
+    404 si no existe.
+    409 si el préstamo no tiene multa o ya fue pagada.
+    """
+    prestamo = db.get(Prestamo, prestamo_id)
+    if not prestamo:
+        raise NoEncontrado("Préstamo no encontrado")
+
+    if prestamo.multa <= Decimal("0.00") or prestamo.multa_pagada:
+        raise Conflicto("El préstamo no tiene multa pendiente de pago")
+
+    prestamo.multa_pagada = True
+    db.commit()
+    db.refresh(prestamo)
     return obtener_prestamo(db, prestamo.id)

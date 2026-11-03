@@ -10,10 +10,17 @@ def listar_categorias(
     db: Session,
     skip: int = 0,
     limit: int = 10
-) -> list[Categoria]:
+) -> dict:
     """Retorna una lista paginada de categorías."""
+    total = db.scalar(select(func.count(Categoria.id))) or 0
     consulta = select(Categoria).order_by(Categoria.id).offset(skip).limit(limit)
-    return list(db.scalars(consulta).all())
+    items = list(db.scalars(consulta).all())
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
 
 
 def obtener_categoria(db: Session, categoria_id: int) -> Categoria:

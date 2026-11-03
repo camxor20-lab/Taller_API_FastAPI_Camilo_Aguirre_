@@ -1,7 +1,10 @@
+
 from datetime import date
 from decimal import Decimal
 from enum import Enum
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 from .libro import LibroRespuestaSimple
 from .socio import SocioRespuestaSimple
 
@@ -51,6 +54,8 @@ class PrestamoRespuesta(BaseModel):
     fecha_limite: date
     fecha_devolucion: date | None = None
     multa: Decimal
+    multa_pagada: bool = False
+    registrado_por_id: int | None = None
     estado: str
     libro: LibroRespuestaSimple | None = None
     socio: SocioRespuestaSimple | None = None

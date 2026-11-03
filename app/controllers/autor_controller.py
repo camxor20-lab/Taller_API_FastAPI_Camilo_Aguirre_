@@ -11,13 +11,24 @@ def listar_autores(
     skip: int = 0,
     limit: int = 10,
     nacionalidad: str | None = None
-) -> list[Autor]:
+) -> dict:
     """Retorna una lista paginada de autores con filtro opcional por nacionalidad."""
     consulta = select(Autor)
+    conteo = select(func.count(Autor.id))
     if nacionalidad:
-        consulta = consulta.where(Autor.nacionalidad.ilike(f"%{nacionalidad.strip()}%"))
+        filtro = Autor.nacionalidad.ilike(f"%{nacionalidad.strip()}%")
+        consulta = consulta.where(filtro)
+        conteo = conteo.where(filtro)
+
+    total = db.scalar(conteo) or 0
     consulta = consulta.order_by(Autor.id).offset(skip).limit(limit)
-    return list(db.scalars(consulta).all())
+    items = list(db.scalars(consulta).all())
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
 
 
 def obtener_autor(db: Session, autor_id: int) -> Autor:

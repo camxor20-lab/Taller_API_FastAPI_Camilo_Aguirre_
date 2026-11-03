@@ -1,11 +1,14 @@
 from datetime import date
+from decimal import Decimal
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 from ..core.exceptions import Conflicto, NoEncontrado
 from ..models.prestamo import Prestamo
 from ..models.socio import Socio
+from ..models.usuario import Usuario
 from ..schemas.prestamo import EstadoPrestamoEnum
 from ..schemas.socio import SocioActualizar, SocioCrear
+from ..schemas.usuario import SocioActualizarPropio
 
 
 def listar_socios(
@@ -13,13 +16,23 @@ def listar_socios(
     skip: int = 0,
     limit: int = 10,
     activo: bool | None = None
-) -> list[Socio]:
+) -> dict:
     """Retorna una lista paginada de socios con filtro opcional por estado activo."""
     consulta = select(Socio)
+    conteo = select(func.count(Socio.id))
     if activo is not None:
         consulta = consulta.where(Socio.activo == activo)
+        conteo = conteo.where(Socio.activo == activo)
+
+    total = db.scalar(conteo) or 0
     consulta = consulta.order_by(Socio.id.asc()).offset(skip).limit(limit)
-    return list(db.scalars(consulta).all())
+    items = list(db.scalars(consulta).all())
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
 
 
 def obtener_socio(db: Session, socio_id: int) -> Socio:
@@ -83,6 +96,27 @@ def actualizar_socio(
     return socio
 
 
+def actualizar_socio_propio(
+    db: Session,
+    socio_id: int,
+    datos: SocioActualizarPropio,
+    usuario: Usuario
+) -> Socio:
+    """Actualiza solo nombre y teléfono del propio socio autenticado."""
+    socio = obtener_socio(db, socio_id)
+
+    if datos.nombre is not None:
+        socio.nombre = datos.nombre
+        usuario.nombre = datos.nombre
+
+    if datos.telefono is not None:
+        socio.telefono = datos.telefono
+
+    db.commit()
+    db.refresh(socio)
+    return socio
+
+
 def eliminar_socio(db: Session, socio_id: int) -> None:
     """
     Elimina un socio:
@@ -123,9 +157,8 @@ def listar_prestamos_socio(
     skip: int = 0,
     limit: int = 10,
     estado: EstadoPrestamoEnum | None = None
-) -> list[Prestamo]:
+) -> dict:
     """Lista los préstamos de un socio con filtro opcional de estado."""
-    # Verificar que el socio exista
     obtener_socio(db, socio_id)
 
     hoy = date.today()
@@ -134,23 +167,25 @@ def listar_prestamos_socio(
         selectinload(Prestamo.socio)
     ).where(Prestamo.socio_id == socio_id)
 
-    if estado == EstadoPrestamoEnum.devuelto:
-        consulta = consulta.where(Prestamo.fecha_devolucion.is_not(None))
-    elif estado == EstadoPrestamoEnum.vencido:
-        consulta = consulta.where(
-            Prestamo.fecha_devolucion.is_(None),
-            Prestamo.fecha_limite < hoy
-        )
-    elif estado == EstadoPrestamoEnum.activo:
-        consulta = consulta.where(
-            Prestamo.fecha_devolucion.is_(None),
-            Prestamo.fecha_limite >= hoy
-        )
+    conteo = select(func.count(Prestamo.id)).where(Prestamo.socio_id == socio_id)
 
+    if estado == EstadoPrestamoEnum.devuelto:
+        filtro = Prestamo.fecha_devolucion.is_not(None)
+        consulta = consulta.where(filtro)
+        conteo = conteo.where(filtro)
+    elif estado == EstadoPrestamoEnum.vencido:
+        filtro_vencido = (Prestamo.fecha_devolucion.is_(None), Prestamo.fecha_limite < hoy)
+        consulta = consulta.where(*filtro_vencido)
+        conteo = conteo.where(*filtro_vencido)
+    elif estado == EstadoPrestamoEnum.activo:
+        filtro_activo = (Prestamo.fecha_devolucion.is_(None), Prestamo.fecha_limite >= hoy)
+        consulta = consulta.where(*filtro_activo)
+        conteo = conteo.where(*filtro_activo)
+
+    total = db.scalar(conteo) or 0
     consulta = consulta.order_by(Prestamo.id.desc()).offset(skip).limit(limit)
     prestamos = list(db.scalars(consulta).all())
 
-    # Calcular y asignar estado
     for p in prestamos:
         if p.fecha_devolucion is not None:
             p.estado = "devuelto"
@@ -159,4 +194,40 @@ def listar_prestamos_socio(
         else:
             p.estado = "activo"
 
-    return prestamos
+    return {
+        "items": prestamos,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
+
+
+def obtener_multas_socio(db: Session, socio_id: int) -> dict:
+    """Retorna los préstamos con multas no pagadas de un socio y el total adeudado."""
+    obtener_socio(db, socio_id)
+    hoy = date.today()
+
+    consulta = select(Prestamo).options(
+        selectinload(Prestamo.libro),
+        selectinload(Prestamo.socio)
+    ).where(
+        Prestamo.socio_id == socio_id,
+        Prestamo.multa > Decimal("0.00"),
+        Prestamo.multa_pagada.is_(False)
+    )
+
+    prestamos = list(db.scalars(consulta).all())
+    for p in prestamos:
+        if p.fecha_devolucion is not None:
+            p.estado = "devuelto"
+        elif p.fecha_limite < hoy:
+            p.estado = "vencido"
+        else:
+            p.estado = "activo"
+
+    total_adeudado = sum((p.multa for p in prestamos), Decimal("0.00"))
+
+    return {
+        "prestamos": prestamos,
+        "total_adeudado": total_adeudado
+    }

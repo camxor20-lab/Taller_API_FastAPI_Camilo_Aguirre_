@@ -1,4 +1,7 @@
-from datetime import datetime
+
+from datetime import date, datetime
+from decimal import Decimal
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
@@ -8,7 +11,7 @@ class SocioBase(BaseModel):
     telefono: str | None = Field(
         default=None,
         pattern=r"^[0-9+ ]{7,15}$",
-        description="Teléfono opcional (7 a 15 caracteres: dígitos, espacios o +)"
+        description="Teléfono opcional"
     )
     activo: bool = Field(default=True, description="Estado del socio en la biblioteca")
 
@@ -87,3 +90,18 @@ class SocioRespuesta(BaseModel):
     telefono: str | None = None
     activo: bool
     fecha_alta: datetime
+
+
+class PrestamoMultaDetalle(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    fecha_prestamo: date | None = None
+    estado: str
+    multa: Decimal
+
+
+class SocioMultasRespuesta(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    prestamos: list[PrestamoMultaDetalle]
+    total_adeudado: Decimal

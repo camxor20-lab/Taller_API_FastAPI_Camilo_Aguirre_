@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, status
 from ..controllers import reporte_controller
-from ..core.dependencies import SessionDep
+from ..core.dependencies import SessionDep, Staff
 from ..schemas.reporte import (
     AutorEstadisticasItem,
     CategoriaLibrosItem,
@@ -23,9 +23,10 @@ router = APIRouter(
 )
 def reporte_libros_mas_prestados(
     db: SessionDep,
+    _staff: Staff,
     limite: int = Query(default=5, ge=1, le=50, description="Cantidad máxima de libros a retornar")
 ):
-    """Reporte de los libros con mayor número de préstamos."""
+    """Reporte de los libros con mayor número de préstamos (Staff: Bibliotecario o Admin)."""
     return reporte_controller.reporte_libros_mas_prestados(db=db, limite=limite)
 
 
@@ -34,8 +35,8 @@ def reporte_libros_mas_prestados(
     response_model=list[CategoriaLibrosItem],
     status_code=status.HTTP_200_OK
 )
-def reporte_categorias(db: SessionDep):
-    """Reporte del total de libros asociados a cada categoría, incluidas las que tienen 0 libros."""
+def reporte_categorias(db: SessionDep, _staff: Staff):
+    """Reporte del total de libros asociados a cada categoría, incluidas las que tienen 0 libros (Staff: Bibliotecario o Admin)."""
     return reporte_controller.reporte_categorias(db=db)
 
 
@@ -44,8 +45,8 @@ def reporte_categorias(db: SessionDep):
     response_model=list[PrestamoVencidoItem],
     status_code=status.HTTP_200_OK
 )
-def reporte_prestamos_vencidos(db: SessionDep):
-    """Reporte de préstamos vencidos no devueltos con cálculo de días de retraso."""
+def reporte_prestamos_vencidos(db: SessionDep, _staff: Staff):
+    """Reporte de préstamos vencidos no devueltos con cálculo de días de retraso (Staff: Bibliotecario o Admin)."""
     return reporte_controller.reporte_prestamos_vencidos(db=db)
 
 
@@ -54,8 +55,8 @@ def reporte_prestamos_vencidos(db: SessionDep):
     response_model=list[SocioMultasItem],
     status_code=status.HTTP_200_OK
 )
-def reporte_socios_con_multas(db: SessionDep):
-    """Reporte de socios que han acumulado multas con el conteo de préstamos multados."""
+def reporte_socios_con_multas(db: SessionDep, _staff: Staff):
+    """Reporte de socios que han acumulado multas con el conteo de préstamos multados (Staff: Bibliotecario o Admin)."""
     return reporte_controller.reporte_socios_con_multas(db=db)
 
 
@@ -64,8 +65,8 @@ def reporte_socios_con_multas(db: SessionDep):
     response_model=list[AutorEstadisticasItem],
     status_code=status.HTTP_200_OK
 )
-def reporte_autores(db: SessionDep):
-    """Reporte estadístico de autores con total de libros, ejemplares y préstamos."""
+def reporte_autores(db: SessionDep, _staff: Staff):
+    """Reporte estadístico de autores con total de libros, ejemplares y préstamos (Staff: Bibliotecario o Admin)."""
     return reporte_controller.reporte_autores(db=db)
 
 
@@ -74,6 +75,6 @@ def reporte_autores(db: SessionDep):
     response_model=ResumenBiblioteca,
     status_code=status.HTTP_200_OK
 )
-def reporte_resumen(db: SessionDep):
-    """Resumen cuantitativo global de la biblioteca en una sola consulta SQL."""
+def reporte_resumen(db: SessionDep, _staff: Staff):
+    """Resumen cuantitativo global de la biblioteca en una sola consulta SQL (Staff: Bibliotecario o Admin)."""
     return reporte_controller.reporte_resumen(db=db)

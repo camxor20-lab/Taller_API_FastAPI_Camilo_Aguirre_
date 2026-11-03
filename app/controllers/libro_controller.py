@@ -29,7 +29,7 @@ def listar_libros(
     desde: int | None = None,
     hasta: int | None = None,
     orden: OrdenLibrosEnum | None = None
-) -> list[Libro]:
+) -> dict:
     """Retorna una lista paginada de libros con filtros combinables y ordenamiento."""
     consulta = select(Libro).options(
         selectinload(Libro.autor),
@@ -51,6 +51,9 @@ def listar_libros(
     if hasta is not None:
         consulta = consulta.where(Libro.anio_publicacion <= hasta)
 
+    subq = consulta.order_by(None).subquery()
+    total = db.scalar(select(func.count(func.distinct(subq.c.id)))) or 0
+
     # Ordenamiento
     if orden == OrdenLibrosEnum.titulo:
         consulta = consulta.order_by(Libro.titulo.asc())
@@ -64,7 +67,12 @@ def listar_libros(
     libros = list(db.scalars(consulta.offset(skip).limit(limit)).all())
     for lib in libros:
         _asignar_disponibles(db, lib)
-    return libros
+    return {
+        "items": libros,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
 
 
 def obtener_libro(db: Session, libro_id: int) -> Libro:
@@ -209,11 +217,14 @@ def listar_libros_por_autor(
     autor_id: int,
     skip: int = 0,
     limit: int = 10
-) -> list[Libro]:
+) -> dict:
     """Lista los libros pertenecientes a un autor específico."""
     autor = db.get(Autor, autor_id)
     if not autor:
         raise NoEncontrado("Autor no encontrado")
+
+    conteo = select(func.count(Libro.id)).where(Libro.autor_id == autor_id)
+    total = db.scalar(conteo) or 0
 
     consulta = select(Libro).options(
         selectinload(Libro.autor),
@@ -223,4 +234,9 @@ def listar_libros_por_autor(
     libros = list(db.scalars(consulta).all())
     for lib in libros:
         _asignar_disponibles(db, lib)
-    return libros
+    return {
+        "items": libros,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }

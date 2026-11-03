@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Query, status
 from ..controllers import libro_controller
-from ..core.dependencies import PaginacionDep, SessionDep
+from ..core.dependencies import PaginacionDep, SessionDep, SoloAdmin, Staff
 from ..schemas.libro import (
     LibroActualizar,
     LibroCrear,
     LibroRespuesta,
     OrdenLibrosEnum
 )
+from ..schemas.pagina import Pagina
 
 router = APIRouter(
     prefix="/libros",
@@ -14,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=list[LibroRespuesta], status_code=status.HTTP_200_OK)
+@router.get("", response_model=Pagina[LibroRespuesta], status_code=status.HTTP_200_OK)
 def listar_libros(
     db: SessionDep,
     paginacion: PaginacionDep,
@@ -25,7 +26,7 @@ def listar_libros(
     hasta: int | None = Query(default=None, description="Año de publicación final"),
     orden: OrdenLibrosEnum | None = Query(default=None, description="Criterio de ordenación: titulo, anio o -anio")
 ):
-    """Lista paginada de libros con filtros combinables y cálculo de ejemplares disponibles."""
+    """Lista paginada de libros con filtros combinables y cálculo de ejemplares disponibles (Público)."""
     return libro_controller.listar_libros(
         db=db,
         skip=paginacion.skip,
@@ -41,24 +42,24 @@ def listar_libros(
 
 @router.get("/{id}", response_model=LibroRespuesta, status_code=status.HTTP_200_OK)
 def obtener_libro(id: int, db: SessionDep):
-    """Consulta un libro por su ID con autor, categorías y ejemplares disponibles."""
+    """Consulta un libro por su ID con autor, categorías y ejemplares disponibles (Público)."""
     return libro_controller.obtener_libro(db=db, libro_id=id)
 
 
 @router.post("", response_model=LibroRespuesta, status_code=status.HTTP_201_CREATED)
-def crear_libro(datos: LibroCrear, db: SessionDep):
-    """Crea un nuevo libro en el catálogo."""
+def crear_libro(datos: LibroCrear, db: SessionDep, _staff: Staff):
+    """Crea un nuevo libro en el catálogo (Staff: Bibliotecario o Admin)."""
     return libro_controller.crear_libro(db=db, datos=datos)
 
 
 @router.patch("/{id}", response_model=LibroRespuesta, status_code=status.HTTP_200_OK)
-def actualizar_libro(id: int, datos: LibroActualizar, db: SessionDep):
-    """Actualiza los datos de un libro y reemplaza categorías si se enviaron."""
+def actualizar_libro(id: int, datos: LibroActualizar, db: SessionDep, _staff: Staff):
+    """Actualiza los datos de un libro y reemplaza categorías si se enviaron (Staff: Bibliotecario o Admin)."""
     return libro_controller.actualizar_libro(db=db, libro_id=id, datos=datos)
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_libro(id: int, db: SessionDep):
-    """Elimina un libro si no tiene préstamos activos."""
+def eliminar_libro(id: int, db: SessionDep, _admin: SoloAdmin):
+    """Elimina un libro si no tiene préstamos activos (Solo Admin)."""
     libro_controller.eliminar_libro(db=db, libro_id=id)
     return None

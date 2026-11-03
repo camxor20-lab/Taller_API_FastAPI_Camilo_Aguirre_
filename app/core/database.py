@@ -1,19 +1,20 @@
-import os
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from .config import get_settings
 
-# Cargar variables de entorno desde el archivo .env
-load_dotenv()
+settings = get_settings()
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg://postgres:1234@localhost:5432/biblioteca"
-)
+convencion = {
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+}
 
 # Motor de conexión a PostgreSQL
 engine = create_engine(
-    DATABASE_URL,
+    settings.database_url,
     echo=False
 )
 
@@ -25,6 +26,6 @@ SessionLocal = sessionmaker(
 )
 
 
-# Clase Base para modelos declarativos de SQLAlchemy
+# Clase Base para modelos declarativos con convención de nombres
 class Base(DeclarativeBase):
-    pass
+    metadata = MetaData(naming_convention=convencion)
