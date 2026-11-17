@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca Real & Colección Antigua</title>
+  
+  <!-- Fuentes Clásicas: Cinzel & Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            title: ['Cinzel', 'serif'],
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          },
+          colors: {
+            caoba: {
+              800: '#2b1810',
+              900: '#1e110b',
+              950: '#120a06',
+            },
+            pergamino: {
+              100: '#faf6ee',
+              200: '#f4ebd8',
+              300: '#e8dbbe',
+              400: '#d7c49f',
+              800: '#524330',
+              900: '#34291c',
+            },
+            oro: {
+              400: '#e5c158',
+              500: '#c5a059',
+              600: '#9d7c38',
+              700: '#7a5f27',
+            },
+            lacra: {
+              700: '#8b1d24',
+              800: '#6b141a',
+              900: '#4e0d12',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Efecto textura de madera oscura */
+    body {
+      background-color: #140d09;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(67, 40, 24, 0.45) 0%, rgba(18, 10, 6, 0.95) 75%),
+        repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 4px);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    /* Marcos ornamentales clásicos */
+    .marco-antiguo {
+      background: linear-gradient(145deg, #1f140e, #180f0a);
+      border: 1px solid #c5a059;
+      box-shadow: 
+        inset 0 0 15px rgba(0,0,0,0.8),
+        0 10px 25px -5px rgba(0, 0, 0, 0.8),
+        0 0 0 1px #422a1d;
+      position: relative;
+    }
+
+    .marco-antiguo::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1px solid rgba(197, 160, 89, 0.25);
+      pointer-events: none;
+    }
+
+    .ribete-oro {
+      border: 1px solid #c5a059;
+      position: relative;
+    }
+
+    /* Efecto cuadro enmarcado para portadas */
+    .marco-pintura {
+      border: 4px solid #3d2617;
+      box-shadow: 
+        0 0 0 1px #c5a059,
+        inset 0 0 10px rgba(0,0,0,0.8),
+        0 12px 20px -5px rgba(0,0,0,0.9);
+    }
+
+    /* Scrollbar estilo pergamino */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #120a06; }
+    ::-webkit-scrollbar-thumb { background: #523824; border-radius: 2px; border: 1px solid #7a5332; }
+    ::-webkit-scrollbar-thumb:hover { background: #8c5e37; }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="h-full text-pergamino-200 flex flex-col selection:bg-lacra-800 selection:text-oro-400">
+
+  <!-- CABECERA CLÁSICA / ATENEO -->
+  <header class="border-b-2 border-oro-600/40 bg-caoba-950/90 shadow-2xl relative z-40 backdrop-blur-md">
+    <!-- Cenefa decorativa superior -->
+    <div class="h-1 bg-gradient-to-r from-oro-700 via-oro-400 to-oro-700 opacity-70"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      <!-- Emblema y Título -->
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-full border-2 border-oro-500 bg-gradient-to-b from-caoba-800 to-caoba-950 flex items-center justify-center shadow-lg shadow-black/80">
+          <span class="text-oro-400 text-xl font-title font-bold">⚜</span>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-title text-2xl font-bold tracking-widest text-oro-400 uppercase drop-shadow">
+              Bibliotheca Antiqua
+            </h1>
+          </div>
+          <p class="text-xs text-pergamino-300/80 italic tracking-wider font-serif">
+            Catálogo Histórico de Obras Literarias & Archivo Cloudinary
+          </p>
+        </div>
+      </div>
+
+      <!-- Acciones de Cabecera -->
+      <div class="flex items-center space-x-4">
+        <a 
+          href="/docs" 
+          target="_blank" 
+          class="inline-flex items-center space-x-2 px-3.5 py-2 rounded border border-oro-600/40 bg-caoba-900 hover:bg-caoba-800 text-oro-400 hover:text-oro-300 font-title text-xs tracking-wider transition uppercase"
+        >
+          <i data-lucide="scroll" class="w-4 h-4"></i>
+          <span>Documentos API</span>
+        </a>
+
+        <button 
+          onclick="abrirModalNuevoLibro()" 
+          class="inline-flex items-center space-x-2 px-4 py-2 rounded bg-gradient-to-b from-lacra-700 to-lacra-900 hover:from-lacra-700 hover:to-lacra-800 border border-oro-500 text-oro-300 hover:text-white font-title text-xs font-bold tracking-widest uppercase shadow-lg shadow-lacra-900/50 transition transform active:scale-95"
+        >
+          <i data-lucide="feather" class="w-4 h-4"></i>
+          <span>+ Añadir Tomo</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- SECCIÓN DE REGISTROS / ARCHIVO CENTRAL -->
+    <div class="text-center py-4 relative">
+      <div class="inline-block relative">
+        <span class="text-oro-500 text-sm tracking-[0.3em] uppercase font-title font-semibold block mb-1">
+          — Archivo Mayor de Letras —
+        </span>
+        <h2 class="font-title text-3xl sm:text-4xl text-pergamino-100 font-bold tracking-wide">
+          Inventario de Tomos & Manuscritos
+        </h2>
+        <div class="flex items-center justify-center space-x-3 text-oro-600 my-2">
+          <span class="h-px w-16 bg-gradient-to-r from-transparent to-oro-600"></span>
+          <span class="text-sm">❦</span>
+          <span class="h-px w-16 bg-gradient-to-l from-transparent to-oro-600"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TARJETAS ESTILO VITRINA / MEDALLONES DE ARCHIVO -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="marco-antiguo p-4 rounded text-center">
+        <p class="text-xs uppercase tracking-wider text-oro-500 font-title">Total Obras</p>
+        <h3 id="statTotalLibros" class="text-3xl font-title font-bold text-pergamino-100 mt-1">--</h3>
+        <span class="text-[11px] text-pergamino-400/60 italic font-serif">en catálogo general</span>
+      </div>
+
+      <div class="marco-antiguo p-4 rounded text-center">
+        <p class="text-xs uppercase tracking-wider text-oro-500 font-title">Disponibles</p>
+        <h3 id="statDisponibles" class="text-3xl font-title font-bold text-emerald-400 mt-1">--</h3>
+        <span class="text-[11px] text-pergamino-400/60 italic font-serif">ejemplares listos</span>
+      </div>
+
+      <div class="marco-antiguo p-4 rounded text-center">
+        <p class="text-xs uppercase tracking-wider text-oro-500 font-title">Litografías</p>
+        <h3 id="statPortadas" class="text-3xl font-title font-bold text-oro-400 mt-1">--</h3>
+        <span class="text-[11px] text-pergamino-400/60 italic font-serif">portadas en Cloudinary</span>
+      </div>
+
+      <div class="marco-antiguo p-4 rounded text-center">
+        <p class="text-xs uppercase tracking-wider text-oro-500 font-title">Maestros / Autores</p>
+        <h3 id="statAutores" class="text-3xl font-title font-bold text-amber-300 mt-1">--</h3>
+        <span class="text-[11px] text-pergamino-400/60 italic font-serif">creadores registrados</span>
+      </div>
+    </section>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTROS ESTILO PERGAMINO -->
+    <section class="marco-antiguo p-5 rounded space-y-4 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:space-x-4">
+      
+      <!-- Entrada de búsqueda -->
+      <div class="relative flex-1">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-oro-600 font-title text-sm">🕮</span>
+        <input 
+          id="inputBusqueda" 
+          type="text" 
+          placeholder="Consultar por título del libro o maestro autor..." 
+          class="w-full pl-10 pr-4 py-2.5 bg-caoba-950/90 border border-oro-600/50 rounded text-pergamino-100 placeholder-pergamino-400/40 text-base focus:outline-none focus:border-oro-400 transition font-serif"
+          oninput="debounceBusqueda()"
+        >
+      </div>
+
+      <!-- Filtros desplegables -->
+      <div class="flex items-center space-x-3">
+        <!-- Filtro por categoría -->
+        <select 
+          id="selectCategoria" 
+          onchange="cargarLibros()"
+          class="bg-caoba-950/90 border border-oro-600/50 rounded text-pergamino-200 py-2.5 px-3 text-sm focus:outline-none focus:border-oro-400 transition cursor-pointer font-serif"
+        >
+          <option value="">Todas las Disciplinas / Géneros</option>
+        </select>
+
+        <!-- Ordenación -->
+        <select 
+          id="selectOrden" 
+          onchange="cargarLibros()"
+          class="bg-caoba-950/90 border border-oro-600/50 rounded text-pergamino-200 py-2.5 px-3 text-sm focus:outline-none focus:border-oro-400 transition cursor-pointer font-serif"
+        >
+          <option value="">Orden de Registro</option>
+          <option value="titulo">Título Alfabetizado (A - Z)</option>
+          <option value="-anio">Año de Publicación (Más Reciente)</option>
+          <option value="anio">Año de Publicación (Más Antiguo)</option>
+        </select>
+
+        <button 
+          onclick="limpiarFiltros()" 
+          title="Restablecer filtros" 
+          class="p-2.5 rounded border border-oro-600/40 bg-caoba-900 text-oro-400 hover:text-white hover:bg-caoba-800 transition"
+        >
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ESTANTERÍA / GRID DE TOMOS -->
+    <section>
+      <!-- Indicador de carga -->
+      <div id="loader" class="py-24 text-center space-y-4">
+        <div class="inline-block text-oro-400 animate-spin">
+          <i data-lucide="compass" class="w-12 h-12"></i>
+        </div>
+        <p class="text-base text-oro-500 font-title tracking-widest uppercase">Examinando los archivos de la biblioteca...</p>
+      </div>
+
+      <!-- Estado vacío -->
+      <div id="estadoVacio" class="hidden py-16 text-center space-y-3 marco-antiguo rounded p-8">
+        <div class="text-oro-500 text-4xl mb-2 font-serif">❧</div>
+        <h4 class="text-xl font-title text-oro-400 font-bold uppercase tracking-wider">Ningún tomo hallado</h4>
+        <p class="text-sm text-pergamino-400 max-w-md mx-auto italic font-serif">
+          No existen manuscritos que coincidan con la búsqueda ingresada.
+        </p>
+        <button 
+          onclick="abrirModalNuevoLibro()" 
+          class="mt-3 inline-flex items-center space-x-2 px-4 py-2 rounded bg-lacra-800 hover:bg-lacra-700 border border-oro-500 text-oro-300 font-title text-xs uppercase tracking-wider transition"
+        >
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Incorporar nuevo tomo</span>
+        </button>
+      </div>
+
+      <!-- Grid contenedor de libros -->
+      <div id="gridLibros" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </section>
+  </main>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="border-t border-oro-600/30 bg-caoba-950 py-6 text-center text-xs text-pergamino-400/60 font-serif">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>Biblioteca Clásica & Sistema de Gestión Literaria con FastAPI y PostgreSQL</p>
+      <p class="text-oro-500/80 font-title tracking-wider">Sincronizado con Almacén Cloudinary</p>
+    </div>
+  </footer>
+
+  <!-- MODAL: ACTUALIZAR PORTADA EN CLOUDINARY -->
+  <div id="modalPortada" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
+    <div class="marco-antiguo max-w-md w-full rounded p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 bg-caoba-950 border-2 border-oro-500">
+      
+      <div class="flex items-start justify-between border-b border-oro-600/30 pb-3">
+        <div>
+          <span class="text-oro-500 text-xs uppercase tracking-widest font-title block">Litografía & Portada</span>
+          <h3 class="text-xl font-title font-bold text-pergamino-100 flex items-center space-x-2 mt-0.5">
+            <span>Asignar Grabado al Tomo</span>
+          </h3>
+          <p id="modalLibroTitulo" class="text-sm text-oro-400 italic font-serif line-clamp-1 mt-1"></p>
+        </div>
+        <button onclick="cerrarModalPortada()" class="text-oro-500 hover:text-white p-1 rounded hover:bg-caoba-900 transition font-title text-lg">
+          ✕
+        </button>
+      </div>
+
+      <!-- Zona de selección / Drag & Drop -->
+      <div class="space-y-4">
+        <div 
+          id="dropzone" 
+          onclick="document.getElementById('inputArchivoPortada').click()" 
+          class="border-2 border-dashed border-oro-600/50 hover:border-oro-400 rounded p-6 text-center cursor-pointer transition bg-caoba-900/60 hover:bg-caoba-900 group"
+        >
+          <input 
+            type="file" 
+            id="inputArchivoPortada" 
+            accept="image/jpeg,image/png,image/webp,image/gif" 
+            class="hidden" 
+            onchange="mostrarVistaPrevia(event)"
+          >
+
+          <div id="dropzoneContent" class="space-y-2">
+            <div class="mx-auto w-12 h-12 rounded-full border border-oro-500/50 bg-caoba-800 flex items-center justify-center text-oro-400 group-hover:scale-110 transition">
+              <i data-lucide="image" class="w-6 h-6"></i>
+            </div>
+            <p class="text-base font-serif font-semibold text-pergamino-200">Pulsa para seleccionar o arrastra la ilustración</p>
+            <p class="text-xs text-pergamino-400/60 italic font-serif">Formatos: JPG, PNG, WEBP o GIF (hasta 10 MB)</p>
+          </div>
+
+          <!-- Vista previa -->
+          <div id="previewContainer" class="hidden space-y-2">
+            <img id="imgPreview" src="" alt="Vista previa" class="max-h-52 mx-auto rounded marco-pintura object-cover">
+            <p id="previewNombre" class="text-xs text-oro-400 font-mono italic mt-1"></p>
+            <span class="text-xs text-pergamino-400 underline">Pulsa si deseas cambiar la ilustración</span>
+          </div>
+        </div>
+
+        <input type="hidden" id="modalLibroId" value="">
+
+        <!-- Acciones del Modal -->
+        <div class="flex items-center space-x-3 pt-2">
+          <button 
+            type="button" 
+            onclick="cerrarModalPortada()" 
+            class="flex-1 py-2 rounded border border-oro-600/40 text-xs font-title tracking-wider uppercase text-pergamino-300 hover:bg-caoba-900 transition"
+          >
+            Desistir
+          </button>
+          <button 
+            id="btnSubirPortada" 
+            type="button" 
+            onclick="ejecutarSubidaPortada()" 
+            class="flex-1 py-2 rounded bg-gradient-to-b from-lacra-700 to-lacra-900 hover:from-lacra-600 hover:to-lacra-800 border border-oro-500 text-xs font-title font-bold tracking-widest uppercase text-oro-300 hover:text-white shadow-lg transition flex items-center justify-center space-x-2 disabled:opacity-50"
+            disabled
+          >
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span>Estampar en Cloudinary</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR NUEVO TOMO -->
+  <div id="modalNuevoLibro" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm hidden">
+    <div class="marco-antiguo max-w-lg w-full rounded p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 bg-caoba-950 border-2 border-oro-500">
+      
+      <div class="flex items-start justify-between border-b border-oro-600/30 pb-3">
+        <div>
+          <span class="text-oro-500 text-xs uppercase tracking-widest font-title block">Inscripción Oficial</span>
+          <h3 class="text-xl font-title font-bold text-pergamino-100 flex items-center space-x-2 mt-0.5">
+            <span>Incorporar Obra al Archivo</span>
+          </h3>
+          <p class="text-xs text-pergamino-400 italic font-serif">Almacena el registro en PostgreSQL y sube la portada a Cloudinary.</p>
+        </div>
+        <button onclick="cerrarModalNuevoLibro()" class="text-oro-500 hover:text-white p-1 rounded hover:bg-caoba-900 transition font-title text-lg">
+          ✕
+        </button>
+      </div>
+
+      <form id="formNuevoLibro" onsubmit="guardarNuevoLibro(event)" class="space-y-4 text-sm font-serif">
+        
+        <!-- Título -->
+        <div>
+          <label class="block text-oro-400 font-title text-xs tracking-wider uppercase mb-1">Título de la Obra *</label>
+          <input 
+            type="text" 
+            id="nuevoTitulo" 
+            required 
+            placeholder="Ej: Cien Años De Soledad" 
+            class="w-full px-3 py-2 bg-caoba-900/90 border border-oro-600/50 rounded text-pergamino-100 placeholder-pergamino-400/40 text-base focus:outline-none focus:border-oro-400 font-serif"
+          >
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- ISBN -->
+          <div>
+            <label class="block text-oro-400 font-title text-xs tracking-wider uppercase mb-1">ISBN (13 dígitos) *</label>
+            <input 
+              type="text" 
+              id="nuevoIsbn" 
+              required 
+              maxlength="13" 
+              pattern="\d{13}" 
+              placeholder="9780307474728" 
+              class="w-full px-3 py-2 bg-caoba-900/90 border border-oro-600/50 rounded text-pergamino-100 placeholder-pergamino-400/40 text-sm focus:outline-none focus:border-oro-400 font-mono tracking-widest"
+            >
+          </div>
+          <!-- Año de publicación -->
+          <div>
+            <label class="block text-oro-400 font-title text-xs tracking-wider uppercase mb-1">Año de Edición *</label>
+            <input 
+              type="number" 
+              id="nuevoAnio" 
+              required 
+              min="1450" 
+              max="2030" 
+              value="1967" 
+              class="w-full px-3 py-2 bg-caoba-900/90 border border-oro-600/50 rounded text-pergamino-100 text-sm focus:outline-none focus:border-oro-400 font-mono"
+            >
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Ejemplares -->
+          <div>
+            <label class="block text-oro-400 font-title text-xs tracking-wider uppercase mb-1">Ejemplares (1 - 50) *</label>
+            <input 
+              type="number" 
+              id="nuevoEjemplares" 
+              required 
+              min="1" 
+              max="50" 
+              value="3" 
+              class="w-full px-3 py-2 bg-caoba-900/90 border border-oro-600/50 rounded text-pergamino-100 text-sm focus:outline-none focus:border-oro-400 font-mono"
+            >
+          </div>
+          <!-- Autor -->
+          <div>
+            <label class="block text-oro-400 font-title text-xs tracking-wider uppercase mb-1">Maestro / Autor *</label>
+            <select 
+              id="nuevoAutorId" 
+              required 
+              class="w-full px-3 py-2 bg-caoba-900/90 border border-oro-600/50 rounded text-pergamino-200 text-sm focus:outline-none focus:border-oro-400 font-serif"
+            >
+              <option value="">Seleccione autor...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Categorías -->
+        <div>
+          <label class="block text-oro-400 font-title text-xs tracking-wider uppercase mb-1">Disciplinas / Categorías (Al menos 1) *</label>
+          <div id="nuevoCategoriasContainer" class="grid grid-cols-2 gap-2 max-h-28 overflow-y-auto p-2.5 bg-caoba-900/70 rounded border border-oro-600/30"></div>
+        </div>
+
+        <!-- Grabado de Portada -->
+        <div>
+          <label class="block text-oro-400 font-title text-xs tracking-wider uppercase mb-1">Grabado de Portada (Sube a Cloudinary)</label>
+          <input 
+            type="file" 
+            id="nuevoImagenFile" 
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            class="w-full text-pergamino-400 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border file:border-oro-600/50 file:text-xs file:font-title file:bg-caoba-900 file:text-oro-300 hover:file:bg-caoba-800 cursor-pointer"
+          >
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex items-center space-x-3 pt-3 border-t border-oro-600/30">
+          <button 
+            type="button" 
+            onclick="cerrarModalNuevoLibro()" 
+            class="flex-1 py-2 rounded border border-oro-600/40 text-xs font-title tracking-wider uppercase text-pergamino-300 hover:bg-caoba-900 transition"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            id="btnCrearLibro" 
+            class="flex-1 py-2 rounded bg-gradient-to-b from-lacra-700 to-lacra-900 hover:from-lacra-600 hover:to-lacra-800 border border-oro-500 text-xs font-title font-bold tracking-widest uppercase text-oro-300 hover:text-white shadow-lg transition flex items-center justify-center space-x-2"
+          >
+            <i data-lucide="quill" class="w-4 h-4"></i>
+            <span>Inscribir Obra</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER / NOTIFICACIONES DE LACRE -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- LÓGICA JAVASCRIPT -->
+  <script>
+    let librosGlobal = [];
+    let categoriasGlobal = [];
+    let autoresGlobal = [];
+    let debounceTimer = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      inicializarDatos();
+    });
+
+    async function inicializarDatos() {
+      await Promise.all([cargarCategorias(), cargarAutores()]);
+      await cargarLibros();
+    }
+
+    // --- CARGA DE LIBROS ---
+    async function cargarLibros() {
+      const loader = document.getElementById('loader');
+      const grid = document.getElementById('gridLibros');
+      const vacio = document.getElementById('estadoVacio');
+
+      loader.classList.remove('hidden');
+      grid.innerHTML = '';
+      vacio.classList.add('hidden');
+
+      const busqueda = document.getElementById('inputBusqueda').value.trim();
+      const categoriaId = document.getElementById('selectCategoria').value;
+      const orden = document.getElementById('selectOrden').value;
+
+      const params = new URLSearchParams({ limit: 50 });
+      if (busqueda) params.append('buscar', busqueda);
+      if (categoriaId) params.append('categoria_id', categoriaId);
+      if (orden) params.append('orden', orden);
+
+      try {
+        const res = await fetch(`/api/v1/libros?${params.toString()}`);
+        if (!res.ok) throw new Error('No se pudo consultar el archivo literario');
+        const data = await res.json();
+        
+        librosGlobal = data.items || [];
+        actualizarEstadisticas(librosGlobal, data.total || 0);
+
+        if (librosGlobal.length === 0) {
+          vacio.classList.remove('hidden');
+        } else {
+          renderizarLibros(librosGlobal);
+        }
+      } catch (err) {
+        mostrarToast('Error al consultar libros: ' + err.message, 'error');
+        vacio.classList.remove('hidden');
+      } finally {
+        loader.classList.add('hidden');
+        lucide.createIcons();
+      }
+    }
+
+    // --- RENDERIZACIÓN DE TARJETAS CLÁSICAS ---
+    function renderizarLibros(libros) {
+      const grid = document.getElementById('gridLibros');
+      grid.innerHTML = '';
+
+      libros.forEach(libro => {
+        const card = document.createElement('div');
+        card.className = "marco-antiguo rounded p-3 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 group";
+
+        const tienePortada = Boolean(libro.imagen_url);
+        const portadaHtml = tienePortada
+          ? `<img src="${libro.imagen_url}" alt="${libro.titulo}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">`
+          : `<div class="w-full h-full bg-gradient-to-b from-caoba-900 via-caoba-950 to-black flex flex-col items-center justify-center p-4 text-center">
+               <span class="text-3xl text-oro-600/70 mb-2 font-serif font-bold">🕮</span>
+               <span class="text-xs text-pergamino-400/60 italic font-serif">Sin grabado registrado</span>
+             </div>`;
+
+        const badgesCategorias = (libro.categorias || []).map(c => 
+          `<span class="px-2 py-0.5 rounded text-[11px] font-title tracking-wider bg-caoba-900/90 text-oro-400 border border-oro-600/30">${c.nombre}</span>`
+        ).join('');
+
+        const autorNombre = libro.autor ? libro.autor.nombre : 'Autor Anónimo';
+        const disponibles = libro.disponibles !== undefined ? libro.disponibles : libro.ejemplares;
+        const colorDisponibles = disponibles > 0 
+          ? 'bg-emerald-950/80 text-emerald-300 border-emerald-600/50' 
+          : 'bg-rose-950/80 text-rose-300 border-rose-600/50';
+
+        card.innerHTML = `
+          <div>
+            <!-- Contenedor del grabado/portada con marco de pintura -->
+            <div class="relative w-full aspect-[3/4] marco-pintura overflow-hidden bg-black mb-3">
+              ${portadaHtml}
+
+              <!-- Marcapáginas de disponibilidad -->
+              <div class="absolute top-2 right-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono tracking-wider border backdrop-blur-sm ${colorDisponibles}">
+                  ${disponibles} disp.
+                </span>
+              </div>
+
+              <!-- Botón flotante para cambiar grabado -->
+              <button 
+                onclick="abrirModalPortada(${libro.id}, '${escapeHtml(libro.titulo)}')" 
+                class="absolute inset-0 bg-caoba-950/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center space-y-2 text-oro-300 font-title text-xs tracking-wider uppercase transition duration-200 cursor-pointer"
+              >
+                <div class="w-10 h-10 rounded-full border border-oro-400 bg-caoba-900 flex items-center justify-center shadow-lg">
+                  <i data-lucide="camera" class="w-5 h-5 text-oro-400"></i>
+                </div>
+                <span>${tienePortada ? 'Cambiar Grabado' : 'Subir Grabado'}</span>
+              </button>
+            </div>
+
+            <!-- Datos de la obra -->
+            <div class="space-y-1.5">
+              <div class="flex flex-wrap gap-1 mb-1.5">${badgesCategorias}</div>
+              <h4 class="font-title font-bold text-base text-pergamino-100 line-clamp-2" title="${libro.titulo}">
+                ${libro.titulo}
+              </h4>
+              <p class="text-sm text-oro-400 italic font-serif flex items-center space-x-1.5">
+                <span>Por</span>
+                <span class="font-medium underline decoration-oro-600/40">${autorNombre}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Pie de tarjeta -->
+          <div class="pt-3 mt-3 border-t border-oro-600/30 flex items-center justify-between text-xs text-pergamino-400/80 font-serif">
+            <span class="font-mono text-[11px] text-pergamino-400/60">Edición: ${libro.anio_publicacion}</span>
+            <button 
+              onclick="abrirModalPortada(${libro.id}, '${escapeHtml(libro.titulo)}')" 
+              class="font-title text-[11px] text-oro-400 hover:text-white uppercase tracking-wider flex items-center space-x-1"
+            >
+              <span>Ilustración</span>
+              <span class="text-xs">→</span>
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // --- CARGAR CATEGORÍAS Y AUTORES ---
+    async function cargarCategorias() {
+      try {
+        const res = await fetch('/api/v1/categorias?limit=100');
+        const data = await res.json();
+        categoriasGlobal = data.items || [];
+        
+        const select = document.getElementById('selectCategoria');
+        const containerNuevo = document.getElementById('nuevoCategoriasContainer');
+        
+        containerNuevo.innerHTML = '';
+        categoriasGlobal.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.nombre;
+          select.appendChild(opt);
+
+          const label = document.createElement('label');
+          label.className = "flex items-center space-x-2 p-1 rounded hover:bg-caoba-800 cursor-pointer text-pergamino-300 text-xs";
+          label.innerHTML = `
+            <input type="checkbox" name="categorias" value="${c.id}" class="accent-amber-600 bg-caoba-950 border-oro-600/50">
+            <span>${c.nombre}</span>
+          `;
+          containerNuevo.appendChild(label);
+        });
+      } catch (e) {
+        console.error('Error cargando categorías', e);
+      }
+    }
+
+    async function cargarAutores() {
+      try {
+        const res = await fetch('/api/v1/autores?limit=100');
+        const data = await res.json();
+        autoresGlobal = data.items || [];
+
+        const selectAutor = document.getElementById('nuevoAutorId');
+        autoresGlobal.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          opt.textContent = a.nombre;
+          selectAutor.appendChild(opt);
+        });
+
+        document.getElementById('statAutores').textContent = autoresGlobal.length;
+      } catch (e) {
+        console.error('Error cargando autores', e);
+      }
+    }
+
+    function actualizarEstadisticas(libros, total) {
+      document.getElementById('statTotalLibros').textContent = total || libros.length;
+      const portadas = libros.filter(l => Boolean(l.imagen_url)).length;
+      document.getElementById('statPortadas').textContent = portadas;
+      const totalDisponibles = libros.reduce((acc, l) => acc + (l.disponibles || 0), 0);
+      document.getElementById('statDisponibles').textContent = totalDisponibles;
+    }
+
+    // --- MODAL DE SUBIDA DE PORTADA ---
+    function abrirModalPortada(id, titulo) {
+      document.getElementById('modalLibroId').value = id;
+      document.getElementById('modalLibroTitulo').textContent = titulo;
+      document.getElementById('inputArchivoPortada').value = '';
+      document.getElementById('dropzoneContent').classList.remove('hidden');
+      document.getElementById('previewContainer').classList.add('hidden');
+      document.getElementById('btnSubirPortada').disabled = true;
+      document.getElementById('modalPortada').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function cerrarModalPortada() {
+      document.getElementById('modalPortada').classList.add('hidden');
+    }
+
+    function mostrarVistaPrevia(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('imgPreview').src = e.target.result;
+        document.getElementById('previewNombre').textContent = file.name;
+        document.getElementById('dropzoneContent').classList.add('hidden');
+        document.getElementById('previewContainer').classList.remove('hidden');
+        document.getElementById('btnSubirPortada').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function ejecutarSubidaPortada() {
+      const libroId = document.getElementById('modalLibroId').value;
+      const fileInput = document.getElementById('inputArchivoPortada');
+      const file = fileInput.files[0];
+      const btn = document.getElementById('btnSubirPortada');
+
+      if (!file) {
+        mostrarToast('Selecciona una ilustración primero', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('imagen', file);
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>Grabando en Cloudinary...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/v1/libros/${libroId}/portada`, {
+          method: 'PATCH',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || 'Fallo en la impresión de la portada');
+        }
+
+        mostrarToast('¡Ilustración estampada con éxito en Cloudinary!', 'exito');
+        cerrarModalPortada();
+        await cargarLibros();
+      } catch (err) {
+        mostrarToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="upload-cloud" class="w-4 h-4"></i><span>Estampar en Cloudinary</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // --- MODAL DE NUEVO LIBRO ---
+    function abrirModalNuevoLibro() {
+      document.getElementById('formNuevoLibro').reset();
+      document.getElementById('modalNuevoLibro').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function cerrarModalNuevoLibro() {
+      document.getElementById('modalNuevoLibro').classList.add('hidden');
+    }
+
+    async function guardarNuevoLibro(event) {
+      event.preventDefault();
+      const btn = document.getElementById('btnCrearLibro');
+
+      const titulo = document.getElementById('nuevoTitulo').value.trim();
+      const isbn = document.getElementById('nuevoIsbn').value.trim();
+      const anio = parseInt(document.getElementById('nuevoAnio').value);
+      const ejemplares = parseInt(document.getElementById('nuevoEjemplares').value);
+      const autorId = parseInt(document.getElementById('nuevoAutorId').value);
+
+      const checkboxes = document.querySelectorAll('#nuevoCategoriasContainer input[type="checkbox"]:checked');
+      const categoriaIds = Array.from(checkboxes).map(cb => cb.value);
+
+      if (categoriaIds.length === 0) {
+        mostrarToast('Debes vincular al menos una disciplina/categoría', 'error');
+        return;
+      }
+
+      const fileInput = document.getElementById('nuevoImagenFile');
+      const imagenFile = fileInput.files[0];
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i><span>Inscribiendo...</span>`;
+      lucide.createIcons();
+
+      try {
+        let res;
+        if (imagenFile) {
+          const formData = new FormData();
+          formData.append('titulo', titulo);
+          formData.append('isbn', isbn);
+          formData.append('anio_publicacion', anio);
+          formData.append('ejemplares', ejemplares);
+          formData.append('autor_id', autorId);
+          formData.append('categoria_ids', categoriaIds.join(','));
+          formData.append('imagen', imagenFile);
+
+          res = await fetch('/api/v1/libros/con-imagen', {
+            method: 'POST',
+            body: formData
+          });
+        } else {
+          res = await fetch('/api/v1/libros', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              titulo,
+              isbn,
+              anio_publicacion: anio,
+              ejemplares,
+              autor_id: autorId,
+              categoria_ids: categoriaIds.map(Number)
+            })
+          });
+        }
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || 'Fallo en la inscripción del tomo');
+        }
+
+        mostrarToast('¡Tomo inscrito formalmente en el Archivo!', 'exito');
+        cerrarModalNuevoLibro();
+        await cargarLibros();
+      } catch (err) {
+        mostrarToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="quill" class="w-4 h-4"></i><span>Inscribir Obra</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // --- UTILIDADES ---
+    function debounceBusqueda() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        cargarLibros();
+      }, 350);
+    }
+
+    function limpiarFiltros() {
+      document.getElementById('inputBusqueda').value = '';
+      document.getElementById('selectCategoria').value = '';
+      document.getElementById('selectOrden').value = '';
+      cargarLibros();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // Notificación estilo lacre/pergamino
+    function mostrarToast(mensaje, tipo = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const estilos = {
+        exito: 'bg-caoba-950 border-2 border-emerald-500 text-emerald-200',
+        error: 'bg-caoba-950 border-2 border-lacra-700 text-rose-200',
+        info: 'bg-caoba-950 border-2 border-oro-500 text-oro-300'
+      };
+
+      toast.className = `${estilos[tipo] || estilos.info} pointer-events-auto px-4 py-3 rounded shadow-2xl flex items-center space-x-2.5 text-xs font-serif italic transform transition-all duration-300 translate-y-2 opacity-0 font-medium`;
+      toast.innerHTML = `
+        <span class="text-oro-400 text-base font-title">⚜</span>
+        <span>${mensaje}</span>
+      `;
+
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3800);
+    }
+  </script>
+</body>
+</html>

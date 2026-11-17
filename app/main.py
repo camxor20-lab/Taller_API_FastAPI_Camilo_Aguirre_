@@ -2,9 +2,11 @@ from contextlib import asynccontextmanager
 import logging
 import time
 import uuid
+from pathlib import Path
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from .core.config import get_settings
 from .core.exceptions import ErrorAplicacion
@@ -114,9 +116,18 @@ api_v1_router.include_router(usuario_router)
 
 app.include_router(api_v1_router)
 
+# Configuración y montaje del frontend estático
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-@app.get("/", tags=["Salud"])
+
+@app.get("/", tags=["Frontend"], include_in_schema=False)
 def root():
+    """Sirve la interfaz web moderna de la biblioteca."""
+    index_file = STATIC_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
     return {
         "mensaje": "API de Biblioteca en ejecución",
         "version": "2.0.0",
