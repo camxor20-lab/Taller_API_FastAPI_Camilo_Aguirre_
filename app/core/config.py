@@ -19,8 +19,18 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    cors_origins: list[str] = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ]
     environment: Literal["dev", "test", "prod"] = "dev"
+
+    # --- Credenciales de Cloudinary añadidas ---
+    cloudinary_cloud_name: str = Field(default="", description="Cloud Name de Cloudinary")
+    cloudinary_api_key: str = Field(default="", description="API Key de Cloudinary")
+    cloudinary_api_secret: str = Field(default="", description="API Secret de Cloudinary")
 
     @model_validator(mode="after")
     def validar_cors_prod(self) -> "Settings":
@@ -32,4 +42,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

@@ -117,7 +117,9 @@ def crear_libro(db: Session, datos: LibroCrear) -> Libro:
         anio_publicacion=datos.anio_publicacion,
         ejemplares=datos.ejemplares,
         autor_id=datos.autor_id,
-        categorias=categorias
+        categorias=categorias,
+        imagen_url=datos.imagen_url,
+        imagen_public_id=datos.imagen_public_id
     )
     db.add(nuevo_libro)
     db.commit()
@@ -182,6 +184,31 @@ def actualizar_libro(db: Session, libro_id: int, datos: LibroActualizar) -> Libr
     if datos.anio_publicacion is not None:
         libro.anio_publicacion = datos.anio_publicacion
 
+    if datos.imagen_url is not None:
+        libro.imagen_url = datos.imagen_url
+
+    if datos.imagen_public_id is not None:
+        libro.imagen_public_id = datos.imagen_public_id
+
+    db.commit()
+    return obtener_libro(db, libro.id)
+
+
+def actualizar_portada_libro(
+    db: Session,
+    libro_id: int,
+    imagen_url: str,
+    imagen_public_id: str | None = None
+) -> Libro:
+    """Actualiza la imagen de portada (URL y public_id de Cloudinary) de un libro existente."""
+    libro = db.get(Libro, libro_id)
+    if not libro:
+        raise NoEncontrado("Libro no encontrado")
+
+    libro.imagen_url = imagen_url
+    if imagen_public_id is not None:
+        libro.imagen_public_id = imagen_public_id
+
     db.commit()
     return obtener_libro(db, libro.id)
 
@@ -208,8 +235,18 @@ def eliminar_libro(db: Session, libro_id: int) -> None:
     for p in prestamos_devueltos:
         db.delete(p)
 
+    public_id = libro.imagen_public_id
+
     db.delete(libro)
     db.commit()
+
+    # Si el libro tenía portada en Cloudinary, intentar eliminarla para liberar espacio
+    if public_id:
+        try:
+            from ..services.cloudinary_service import eliminar_imagen
+            eliminar_imagen(public_id)
+        except Exception:
+            pass
 
 
 def listar_libros_por_autor(
